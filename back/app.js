@@ -1,11 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const Sauce = require("./models/Sauce");
+const sauceRoutes = require("./routes/sauce-route");
 const userRoutes = require("./routes/user-route");
+const path = require("path");
 
 const app = express();
+mongoose.set("strictQuery", true);
 
-app.use(express.json());
+mongoose
+  .connect(
+    "mongodb+srv://YoannP:YoannP@projet6db.qsz3va9.mongodb.net/?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => console.log("Connexion à MongoDB réussie !"))
+  .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,18 +28,10 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.set("strictQuery", true);
-
-mongoose
-  .connect(
-    "mongodb+srv://YoannP:YoannP@projet6db.qsz3va9.mongodb.net/?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
-  .then(() => console.log("Connexion à MongoDB réussie !"))
-  .catch(() => console.log("Connexion à MongoDB échouée !"));
-
-module.exports = app;
+app.use(express.json());
 
 app.use("/api/auth", userRoutes);
+app.use("/api/sauces", sauceRoutes);
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 module.exports = app;
